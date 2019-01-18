@@ -4,9 +4,12 @@
   "description": "",
   "main": "src/first.js",
   "scripts": {
-    "zip": "rm function.zip & zip -r function.zip src/*",
+    "zip": "rm function.zip & zip -r function.zip src/* node_modules/*",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "aws-xray-sdk": "^2.1.0"
+  }
 }

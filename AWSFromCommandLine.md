@@ -178,7 +178,7 @@ exports.handler = async function (event, context) {
 }
 ```
 
-Once we update the function reflecting above code, we can see our APIs are returning successfully and you can see `{name:AWS}` in your browser pages.
+Once we update the function reflecting above code, we can see our API is returning successfully and you can see `{name:AWS}` in your browser page. **Open same API in another tab and keep both tabs open**, we will require atleast two different requests later in next step.
 
 Now it's time to monitor the performance of this function.
 
@@ -199,3 +199,49 @@ To monitor traces of your lambda function follow these steps.
 5. Check `Enable Active Tracing.`
 
 After following these steps, your lambda will be traced and the records will be shown in X-Ray console. Refresh the API so that our function will run and performance monitoring records will be stored in X-Ray Console. To see them, go to `Monitoring` Tab and click `View traces in X-Ray` button. It will lead you to X-Ray console and let you see performance monitoring.
+
+### Using AWS X-Ray Node SDK
+
+After integrating AWS Lambda and X-Ray using above steps. X-Ray traces all important traces for us, which is good enough for many use-cases. That eliminates the use of X-Ray SDK in Lambda environment. However we can use AWS SDK to capture subsegment, add Annotations and Metadata to that subsegment and those info will be shown in X-Ray Console.
+
+To use AWS X-Ray SDK. Run `npm install --save aws-xray-sdk` command from your project location. This will add X-Ray SDK in your project. After that change your code as follows.
+
+```javascript
+var AWSXray = require('aws-xray-sdk'); //1
+
+exports.handler = async function (event, context) {
+    console.log('Hi');
+    console.log(`Event is ${JSON.stringify(event)}`);
+    console.log(`Context is ${JSON.stringify(context)}`);
+    if (event.queryStringParameters) {
+        //2
+        AWSXray.captureFunc('Query', function (subsegment) {
+            console.log(`Query is ${JSON.stringify(event.queryStringParameters)}`);
+            subsegment.addAnnotation('Query', event.queryStringParameters.number); //3
+            subsegment.addMetadata('Qry', event.queryStringParameters, 'Custom'); //4
+            subsegment.addMetadata('Qry', event.queryStringParameters); //5
+        });
+    }
+    let response = JSON.stringify(event, null, 0);
+    console.log(response);
+    return { statusCode: 200, body: JSON.stringify({ name: 'AWS' }) };
+}
+```
+
+In above code, we have initialized AWS X-Ray object(1). This Object is used to instrument many AWS Services and HTTP calls. In lambda environment we are not using any of these, instead we are going to add trace segment and add some Annotations and MetaData.
+
+Annotations are kind of an Index to our trace or subsegment, we can filter traces using annotation key and values and pass some metadata about our trace.
+
+To add a subsegment, call `AWSXray.captureFunc` function(2) in your code. You have to pass a name of your subsegment and a callback. Write the code you want to trace in callback of the function. After the last line of `captureFunc` the subsegment will end. There is also a variant called `captureAsyncFunc`. The only difference between these functions is ending the trace. In `captrueFunc` trace will end automatically after last line of callback, while in `captureAsyncFunc` we have to call `subsegment.close()` to end the trace.
+
+To add annotation, call `subsegment.addAnnotation()`(3) method. This method requires name of the annotation, and value which should be either `String`, `Boolean` or `Number`.
+
+To add metadata, there are two variants. The one with default Namespace(5) and the other with custom Namespace(6). Both methods require `Key` and `Value` which should be either `String`, `Boolean`, `Number` or `Object`. The value of Custom namespace must be a string.
+
+When you re-run your APIs and watch the trace, you can see your custom sub segment added after all default segments. In our case it will be `Query` subsegment. In default view, it will show you execution time of the subsegment. Upon clicking on that subsegment you can see multiple tabs, two of them are `Annotation` and `Metadata`. You can see annotations we have passed there and whole metadata arranged by namespace.
+
+Now if you have two requests open, go to their address bar and append `?number=12` and `?number=24` respectively as query parameters. The value of them will be passed in `event.queryStringParameters` JSON. Run both the requests. There shouldn't be any changes in output. In above code, we have passed value of `number` parameter as annotation.
+
+To serch by annotations, go back to traces view and in search bar add `AND annotation.Query="24"` at the end of the existing query. Refresh and see you can see that the traces shown there are filtered according to search query. Click on a trace, and see the details of `Query` subsegment, you can see the annotation has `Query` parameter and it's value is `24`, which confirms the filter is working.
+
+This is it for developing lambda functions locally, adding logs and adding traces. In future we will go bit advanced in AWS Lambda.
