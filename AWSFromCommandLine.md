@@ -174,6 +174,28 @@ exports.handler = async function (event, context) {
     console.log(`Context is ${JSON.stringify(context)}`);
     let response = JSON.stringify(event, null, 0);
     console.log(response);
-    return { statusCode: 200, body: { name: 'AWS' }, };
+    return { statusCode: 200, body: JSON.stringify({ name: 'AWS' }) };
 }
 ```
+
+Once we update the function reflecting above code, we can see our APIs are returning successfully and you can see `{name:AWS}` in your browser pages.
+
+Now it's time to monitor the performance of this function.
+
+## Using AWS X-Ray for performance monitoring
+
+Performance monitoring is an integral part of any system and we should consider it seriously when using cost sensitive systems like Firebase or AWS. And for Performance monitoring, AWS has a service called AWS X-Ray.
+
+There are two ways to use X-Ray for performance monitoring, the first one is using **Lambda Console** and the other one is using **X-Ray SDK**.
+
+### Using AWS Lambda Console for X-Ray
+
+To monitor traces of your lambda function follow these steps.
+
+1. Go to Lambda Console.
+2. Select the function you want to monitor.
+3. Select Configuration Tab.
+4. Scroll Down and Find `Debugging and Error Handling` section.
+5. Check `Enable Active Tracing.`
+
+After following these steps, your lambda will be traced and the records will be shown in X-Ray console. Refresh the API so that our function will run and performance monitoring records will be stored in X-Ray Console. To see them, go to `Monitoring` Tab and click `View traces in X-Ray` button. It will lead you to X-Ray console and let you see performance monitoring.

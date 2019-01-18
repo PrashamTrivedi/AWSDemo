@@ -4,9 +4,8 @@
   "description": "",
   "main": "src/first.js",
   "scripts": {
-    "zip": "zip -r function.zip src/*",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "publish-update":"npm run zip & npm run update-function"
+    "zip": "rm function.zip & zip -r function.zip src/*",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC"

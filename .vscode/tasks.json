@@ -22,8 +22,8 @@
             "command":"aws lambda update-function-code --function-name ${input:FUNCTION} --zip-file fileb://function.zip",
             "presentation": {
                 "echo": true,
-                "reveal": "silent",
-                "focus": false,
+                "reveal": "always",
+                "focus": true,
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": true
