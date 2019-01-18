@@ -5,8 +5,6 @@
   "main": "src/first.js",
   "scripts": {
     "zip": "zip -r function.zip src/*",
-    "create-function": "aws lambda create-function --function-name OddEven --runtime nodejs8.10 --handler src/first.handler --timeout 300 --zip-file fileb://function.zip",
-    "update-function":"aws lambda update-function-code --function-name OddEven --zip-file fileb://function.zip",
     "test": "echo \"Error: no test specified\" && exit 1",
     "publish-update":"npm run zip & npm run update-function"
   },

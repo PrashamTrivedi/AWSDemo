@@ -1,0 +1,60 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "create-function",
+            "type": "shell",
+            "command": "aws lambda create-function --function-name ${input:FUNCTION} --runtime nodejs8.10 --role ${input:ROLE_ARN} --handler src/first.handler --timeout 300 --zip-file fileb://function.zip",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }            
+        },
+        {
+            "label": "update-function",
+            "type": "shell",
+            "command":"aws lambda update-function-code --function-name ${input:FUNCTION} --zip-file fileb://function.zip",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }            
+        },{
+            "label": "TestEnv",
+            "type": "shell",
+            "command":"echo aws lambda create-function --function-name OddEven --runtime nodejs8.10 --role ${input:ROLE_ARN} --handler src/first.handler --timeout 300 --zip-file fileb://function.zip ",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            }            
+
+        }
+    ],
+    "inputs": [
+        {
+            "id": "ROLE_ARN",
+            "description": "Input Your AWS Role ARN",
+            "type": "promptString"
+        },
+        {
+         
+            "id": "FUNCTION",
+            "default": "OddEven",
+            "description": "Input Function Name",
+            "type": "promptString"
+        }
+    ]
+}

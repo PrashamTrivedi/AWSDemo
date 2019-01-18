@@ -108,6 +108,72 @@ After running this command, confirm our function is created successfully on cons
 
 Now we will hook this lambda to an API and try to run it.
 
-## Hooking lambda function to API gateway.
+## Connecting lambda function to API gateway
 
-[Amazon API Gateway](https://ap-south-1.console.aws.amazon.com/apigateway/home) is a good and easy way to create and publish REST Apis which can be hooked to any AWS services. For this example we will create a simple GET API and Hook it with our lambda function. 
+[Amazon API Gateway](https://ap-south-1.console.aws.amazon.com/apigateway/home) is a good and easy way to create and publish REST Apis which can be hooked to any AWS services. For this example we will create a simple GET API and Hook it with our lambda function. To do this follow the steps below.
+
+1. Sign in to [Amazon API Gateway](https://ap-south-1.console.aws.amazon.com/apigateway/home).
+
+2. If you don't have an API created, create an API.
+
+    - Chose `New API`.
+    - Give it a name.
+    - Choose Create API.
+
+3. Now create a child resource. Each resource will be path of your API and we can define methods under a resource. For our example we will create a resource called `playground`.
+
+4. Once a resource is created we will create a method in that resource. A method will correspond to HTTP Verbs, so a `GET` method under `playground` resource will create a `GET` api in path `playground`. To create a resource, follow these steps.
+
+    - Click `Actions` button and from options select `Create Method`.
+    - You will be presented a dropdown, select `GET` there.
+    - Click on Tick mark and you will be presented options in Right side pane.
+    - In `Integration Type`: Select `Lambda Function`.
+    - Check `Use Lambda Proxy Integration`.
+    - Select your Lambda region and write a function name in `Lambda Function` input.
+    - Click save, you will be prompted to a permission, click `OK`.
+
+5. Once you setup, go to `Actions` button and select `Deploy API`.
+
+    - You will be prompted to select Stage, create a stage or select already created stage.
+    - Click `Deploy`.
+    - Once it's already deployed, Go to `Stages`.
+    - Locate your stage, under your stage you can see list of resources and methods under resources. Locate `playground` resource and select `GET` under `playground`.
+    - In right pane you can see `Invoke URL`. We have used `GET` method so that we can test our code right from browser.
+    - Copy invoke URL and paste it in different tab.
+
+*In case the steps are not helping you or outdated. You should follow [this guide](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-lambda.html#api-gateway-proxy-integration-lambda-function-nodejs) to map your API with Lambda function.*
+
+At this point, you can't see a proper response. There will be an error, opening the invoke URL will show an error message like below.
+
+```json
+{"message": "Internal server error"}
+```
+
+We need to debug what is giving us this error. In normal node projects, we use `console.log` to print some logging information, but this is not a normal node project. Our code, at this point, is running in AWS environment and we need some logging mechanism and a service to see the logs we have generated.
+
+## Using AWS CloudWatch for Logging
+
+Remember we have `console.log` statements in our code. Two of which are printing JSON representation `event` and `context` objects. We also print a response object. And by default all these statements are logged to AWS CloudWatch.
+
+Apart from `console.log` amazon cloudwatch also support `console.error`, `console.warn` & `console.info` methods. To see logs per lambda follow steps mentioned below.
+
+- Go to AWS Lambda console and select your lambda.
+- Select `Monitoring` tab.
+- You will see `View Logs in CloudWatch` button, click that.
+- You will be presented a list of streams associated with that lambda. The number of streams usually relate to number of integrations that lambda function has.
+- Open a stream by clicking on it.
+- You will see the logs arranged by time. You will see the logs.
+- If you have followed the example, you can see four log items ending with `Hi`, `event is (A Json Object)`, another `event is (A Json Object)` and an json starts with `resource`. Expand any of these message to see full message.
+
+After seeing the logs for error we can confirm that there is nothing wrong with our lambda, but the API is expecting a proper response. Also, the second `event is` log is actually a log for `context` object, which we should reflect accordingly in console message. Let's make those changes.
+
+```javascript
+exports.handler = async function (event, context) {
+    console.log('Hi');
+    console.log(`Event is ${JSON.stringify(event)}`);
+    console.log(`Context is ${JSON.stringify(context)}`);
+    let response = JSON.stringify(event, null, 0);
+    console.log(response);
+    return { statusCode: 200, body: { name: 'AWS' }, };
+}
+```
