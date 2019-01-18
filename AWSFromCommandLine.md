@@ -110,4 +110,4 @@ Now we will hook this lambda to an API and try to run it.
 
 ## Hooking lambda function to API gateway.
 
-[Amazon API Gateway](https://ap-south-1.console.aws.amazon.com/apigateway/home) is a good and easy way to create and publish REST Apis which can be hooked to any AWS services. For this example we will create 
+[Amazon API Gateway](https://ap-south-1.console.aws.amazon.com/apigateway/home) is a good and easy way to create and publish REST Apis which can be hooked to any AWS services. For this example we will create a simple GET API and Hook it with our lambda function. 
