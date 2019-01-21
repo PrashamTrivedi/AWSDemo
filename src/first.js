@@ -11,8 +11,9 @@ exports.handler = async function (event, context) {
             subsegment.addMetadata('Qry', event.queryStringParameters, 'Custom');
             subsegment.addMetadata('Qry', event.queryStringParameters);
         });
+        return { statusCode: 200, body: JSON.stringify({ name: 'AWS',number: event.queryStringParameters.number}) };
+    } else {
+        return { statusCode:200,body:JSON.stringify({name: 'AWS', message:'Provide a number to check whether it\'s even or odd'})}
     }
-    let response = JSON.stringify(event, null, 0);
-    console.log(response);
-    return { statusCode: 200, body: JSON.stringify({ name: 'AWS' }) };
+    
 }

@@ -14,12 +14,12 @@
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": true
-            }            
+            }
         },
         {
             "label": "update-function",
             "type": "shell",
-            "command":"aws lambda update-function-code --function-name ${input:FUNCTION} --zip-file fileb://function.zip",
+            "command": "aws lambda update-function-code --publish --function-name ${input:FUNCTION} --zip-file fileb://function.zip",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -27,11 +27,12 @@
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": true
-            }            
-        },{
+            }
+        },
+        {
             "label": "TestEnv",
             "type": "shell",
-            "command":"echo aws lambda create-function --function-name OddEven --runtime nodejs8.10 --role ${input:ROLE_ARN} --handler src/first.handler --timeout 300 --zip-file fileb://function.zip ",
+            "command": "echo aws lambda create-function --function-name OddEven --runtime nodejs8.10 --role ${input:ROLE_ARN} --handler src/first.handler --timeout 300 --zip-file fileb://function.zip ",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -39,8 +40,33 @@
                 "panel": "shared",
                 "showReuseMessage": true,
                 "clear": true
-            }            
-
+            }
+        },
+        {
+            "label": "Create Alias",
+            "type": "shell",
+            "command": "aws lambda create-alias --function-name ${input:FUNCTION} --name ${input:ALIAS} --function-version ${input:VERSION}",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "Create Version",
+            "type": "shell",
+            "command":" aws lambda publish-version --function-name ${input:FUNCTION}",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
         }
     ],
     "inputs": [
@@ -50,10 +76,19 @@
             "type": "promptString"
         },
         {
-         
             "id": "FUNCTION",
             "default": "OddEven",
             "description": "Input Function Name",
+            "type": "promptString"
+        },
+        {
+            "id": "ALIAS",
+            "description": "Name of your AWS Alias",
+            "type": "promptString"
+        },
+        {
+            "id": "VERSION",
+            "description": "Version of AWS Lambda",
             "type": "promptString"
         }
     ]
