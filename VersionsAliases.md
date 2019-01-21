@@ -107,9 +107,41 @@ Now we need to refer these values to `GET` resource. To do that,
 4. Locate label **Lambda Function**, and edit it.
 5. Instead of specific name of your lambda function, enter `${stageVariables.functionName}` as a value.
 6. Press `Save` or Tick mark.
-7. You will be shown a permission dialog, **Don't press `OK` blindly on it**. In this permission dialog, you can see **a command with a placeholder value**. You need to **Replace the placeholder value with actual value and run this command in CLI**.
+7. You will be shown a permission dialog, **Don't press `OK` blindly**. In this permission dialog, you can see **a command with a placeholder value**. You need to **Replace the placeholder value with actual value and run this command in CLI**.
 
     - If you have **blindly pressed `OK`** or **never run above mentioned command**, your **APIs will throw 500 error and there won't be any logs in CloudWatch**.
 
 8. Load both stages' `GET` Apis and you can see different responses based on how your lambda is coded.
-9. In cloudwatch logs, you can observe the source of your lambda in `event.requestContext.path` JSON structure.
+9. In cloudwatch logs, you can observe the source of your lambda in `event.requestContext.path` JSON structure. Which will reveal the stage from which the lambda is invoked.
+
+This is not the ideal process. Before you can test the updated version you need to a) update the versions to their respected stages in console b) Give proper permission to each stage if required using CLI. And this process **repeats each time you update version**. Also whenever you need to update your event sources(e.g. API) you need to update every event source. That's long, repeated and thus error prone. To solve this problem, AWS has a facility called **Alias** which can be used as *named versions* to our lambda.
+
+## Aliases
+
+For AWS Lambda, we can create Aliases like `Dev` and `Prod` which can be hooked to `Dev` and `Prod` stages of the API. To create the alias, we can use Lambda console or AWS CLI.
+
+### Creating Alias using Lambda Console
+
+1. Locate a dropdown called `Actions`.
+2. Click on `Create alias`.
+3. In a dialog box, enter name, description of new version.
+4. Also specify version name to attach to alias. An alias can point to one or two versions. **An alias can only point to a version, either `$LATEST` or numbered version.
+5. Click `Create`.
+
+### Creating Alias using CLI
+
+To create Alias using Command line, run following function.
+
+`aws lambda create-alias --function-name ${FunctionName} --name ${AliasName} --function-version ${VersionNumber}`
+
+The difference between creating alias in Console vs creating alias using CLI is that you can not pass `$LATEST` as version using CLI.
+
+Second useful step of using alias is to assign a version to an Alias. To do that the easiest way is to run a command.
+
+`aws lambda update-alias --function-name ${FunctionName} --name ${AliasName} --function-version ${VersionNumber}`.
+
+Once the alias is created, you don't need to change much to point API to the alias. Instead of specific version you need to provide name of our Alias. E.g. you need to replace `OddEven:Prod` instead of `OddEven:2`. You still need to give permission to new alias. But this is a one time process per Alias. And will work for every update afterwards.
+
+In API console, change `functionName` variable in `Prod` stage to `OddEven:Prod`, and in `Dev` stage, change it to `OddEven:Dev`.
+
+In this process once you are done developing new version, all you need to run two commands. First command is to assign latest version to `Dev` and the previous version to `Prod`, and once you do this you are all set to run two different versions of Lambda in two different stages.

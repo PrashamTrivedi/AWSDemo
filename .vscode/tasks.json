@@ -58,7 +58,7 @@
         {
             "label": "Create Version",
             "type": "shell",
-            "command":" aws lambda publish-version --function-name ${input:FUNCTION}",
+            "command":"aws lambda publish-version --function-name ${input:FUNCTION}",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -68,6 +68,20 @@
                 "clear": true
             }
         }
+        ,{
+            "label": "Link Version to Alias",
+            "type": "shell",
+            "command": "aws lambda update-alias --function-name ${input:FUNCTION} --name ${input:ALIAS} --function-version ${input:VERSION}",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        
     ],
     "inputs": [
         {

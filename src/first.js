@@ -11,7 +11,13 @@ exports.handler = async function (event, context) {
             subsegment.addMetadata('Qry', event.queryStringParameters, 'Custom');
             subsegment.addMetadata('Qry', event.queryStringParameters);
         });
-        return { statusCode: 200, body: JSON.stringify({ name: 'AWS',number: event.queryStringParameters.number}) };
+        if (event.queryStringParameters.number % 2 == 0) {
+            
+            return { statusCode: 200, body: JSON.stringify({ name: 'AWS',number: event.queryStringParameters.number, message:'This is Even!'}) };
+        } else {
+            
+            return { statusCode: 200, body: JSON.stringify({ name: 'AWS',number: event.queryStringParameters.number, message:'This is Odd!'}) };
+        }
     } else {
         return { statusCode:200,body:JSON.stringify({name: 'AWS', message:'Provide a number to check whether it\'s even or odd'})}
     }
